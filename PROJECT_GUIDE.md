@@ -1,14 +1,14 @@
 # PolyDraft - Project Guide
 
-**Fantasy Sports-Style Gamified Prediction Markets on Base**
+**Fantasy League Platform for Prediction Markets on Base**
 
 ---
 
 ## Quick Overview
 
-PolyDraft is a Next.js 16 app that gamifies prediction markets with fantasy draft mechanics. Currently building the draft room, league management, and Polymarket API integration.
+PolyDraft is a Next.js 16 app that gamifies prediction markets with fantasy draft mechanics. It serves as a social UI and scoring layer on top of Polymarket, with two modes: Social Fantasy (virtual points) and Live Builder Mode (real trades via Polymarket Builder SDK).
 
-**Current Status**: MVP in progress with working UI, API integration, and dev mode for testing.
+**Current Status**: MVP in progress with working UI, Polymarket API integration, real-time WebSocket data, and dev mode for testing.
 
 ---
 
@@ -19,6 +19,7 @@ PolyDraft is a Next.js 16 app that gamifies prediction markets with fantasy draf
 4. [Development Setup](#development-setup)
 5. [Core Features](#core-features)
 6. [Design System](#design-system)
+7. [Next Steps](#next-steps)
 
 ---
 
@@ -29,23 +30,31 @@ PolyDraft is a Next.js 16 app that gamifies prediction markets with fantasy draf
 - ✅ Draft room page with market selection
 - ✅ League browsing with cards
 - ✅ Profile page with stats
-- ✅ Polymarket API integration (lib/api/polymarket.ts)
+- ✅ Polymarket Gamma API integration (lib/api/polymarket.ts)
+- ✅ CLOB WebSocket for real-time token prices (lib/api/clob-websocket.ts)
+- ✅ RTDS WebSocket for market updates (lib/api/rtds-websocket.ts)
 - ✅ Dev mode with sidebar for testing (components/DevSidebar.tsx)
 - ✅ Dark theme with coral/red accents
 - ✅ Bottom navigation bar
+- ✅ Real-time price updates in MarketCard components
+- ✅ Analytics page with market trends
 
 ### In Progress
-- 🔨 Polymarket market data fetching
-- 🔨 Wallet integration (OnchainKit setup)
+- 🔨 Supabase integration for league state management
+- 🔨 Snake draft implementation with WebSocket synchronization
 - 🔨 League creation flow
-- 🔨 Draft logic and state management
+- 🔨 Wallet integration (OnchainKit setup)
+- 🔨 Market slate filtering (active, date-relevant, min liquidity)
 
 ### Not Started
-- ❌ Smart contracts
+- ❌ Smart contract (LeagueRegistry.sol) on Base
 - ❌ Base blockchain integration
-- ❌ MiniKit SDK implementation
-- ❌ NFT rewards
-
+- ❌ Polymarket Builder SDK integration for Live Mode
+- ❌ NFT trophy minting
+- ❌ Scoring and settlement system
+- ❌ In-league swap mechanism
+- ❌ Geo-blocking for Live Mode
+- ❌ Token-gated leagues
 
 ---
 
@@ -58,7 +67,7 @@ PolyDraft is a Next.js 16 app that gamifies prediction markets with fantasy draf
 - **Tailwind CSS 3.4.1** - Styling
 - **Lucide React 0.555.0** - Icons
 
-### Blockchain (Installed, Not Yet Integrated)
+### Blockchain (Installed, Partial Integration)
 - **OnchainKit 1.1.2** - Base/Coinbase components
 - **Wagmi 2.19.5** - React hooks for Ethereum
 - **Viem 2.41.2** - TypeScript Ethereum library
@@ -68,9 +77,15 @@ PolyDraft is a Next.js 16 app that gamifies prediction markets with fantasy draf
 - **Farcaster MiniApp SDK 0.2.1**
 - **Farcaster Quick Auth 0.0.8**
 
-### APIs
-- **Polymarket API** - Market data (in progress)
+### APIs & Data
+- **Polymarket Gamma API** - Market data, odds, resolution status
+- **Polymarket CLOB WebSocket** - Real-time token price updates
+- **Polymarket RTDS WebSocket** - Market updates and crypto prices
+- **WebSocket (ws 8.18.0)** - WebSocket client for real-time data
 
+### Backend (Planned)
+- **Supabase** - Off-chain league state, player picks, draft sync
+- **Polymarket Builder SDK** - Gasless order execution (Live Mode)
 
 ---
 
@@ -87,15 +102,15 @@ PolyDraft/
 │   │   └── [id]/page.tsx        # League details
 │   ├── leaderboard/page.tsx     # Leaderboard
 │   ├── profile/page.tsx         # User profile
-│   ├── rewards/page.tsx         # Rewards
-│   └── api/polymarket/route.ts  # Polymarket API proxy
+│   ├── rewards/page.tsx         # Rewards & achievements
+│   └── api/polymarket/route.ts  # Polymarket API proxy (planned)
 │
 ├── components/                   # UI components
 │   ├── ConnectWallet.tsx
 │   ├── DraftSlots.tsx
 │   ├── LeaderboardRow.tsx
 │   ├── LeagueCard.tsx
-│   ├── MarketCard.tsx
+│   ├── MarketCard.tsx           # With live price updates
 │   ├── Navbar.tsx               # Bottom nav
 │   ├── DevSidebar.tsx           # Dev mode controls
 │   ├── ModeToggle.tsx
@@ -105,43 +120,32 @@ PolyDraft/
 │
 ├── lib/
 │   ├── api/
-│   │   ├── polymarket.ts        # Polymarket API client
-│   │   └── types.ts             # API types
-│   ├── contexts/
-│   │   └── DevSettingsContext.tsx # Dev mode state
+│   │   ├── polymarket.ts        # Polymarket Gamma API client
+│   │   ├── types.ts             # API types
+│   │   ├── websocket.ts         # WebSocket types
+│   │   ├── clob-websocket.ts    # CLOB WebSocket client
+│   │   ├── rtds-websocket.ts    # RTDS WebSocket types
+│   │   ├── rtds-websocket-client.ts # RTDS WebSocket client
+│   │   └── realtime-types.ts    # Real-time data types
 │   ├── hooks/
-│   │   └── usePolymarket.ts     # Polymarket hook
+│   │   ├── usePolymarket.ts     # Polymarket data hook
+│   │   ├── useCLOBWebSocket.ts  # CLOB WebSocket hook
+│   │   ├── useRTDSWebSocket.ts  # RTDS WebSocket hook
+│   │   └── useRealtimeMarkets.ts # Combined real-time data hook
 │   └── data/
-│       └── dummyData.ts         # Mock data
+│       └── dummyData.ts         # Mock data for testing
+│
+├── docs/                         # Documentation
+│   ├── POLYMARKET_API.md        # Polymarket API reference
+│   ├── CLOB_WEBSOCKET.md        # CLOB WebSocket implementation
+│   └── RTDS_WEBSOCKET.md        # RTDS WebSocket implementation
 │
 ├── .env.example                  # Environment template
 ├── tailwind.config.ts
-└── package.json
+├── package.json
+├── README.md                     # Product specification
+└── PROJECT_GUIDE.md             # This file
 ```
-
----
-
-## Core Features
-
-### Pages
-- **Home (/)** - League overview with cards
-- **Draft (/draft)** - Draft room with market selection
-- **Leagues (/leagues)** - Browse leagues, individual league pages
-- **Leaderboard (/leaderboard)** - Rankings (placeholder)
-- **Rewards (/rewards)** - Achievements (placeholder)
-- **Profile (/profile)** - User stats with grid layout
-
-### Components
-- **Bottom Navigation** - 5-tab bar (Home, Leagues, News, Analytics, Profile)
-- **League Cards** - Entry fee, members, prize pool, status badges
-- **Draft Slots** - Visual 10-slot draft board with pick indicator
-- **Market Cards** - Prediction markets with YES/NO options
-- **Dev Sidebar** - Toggle dummy/real data, theme controls
-
-### Dev Mode
-- Press "M" key to toggle dev sidebar
-- Switch between dummy data and Polymarket API
-- Testing controls for development
 
 ---
 
@@ -167,9 +171,16 @@ npm run dev
 # Polymarket API (optional - falls back to dummy data)
 POLYMARKET_API_KEY=your_api_key
 
-# For future blockchain integration
+# Supabase (planned)
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+
+# Base/OnchainKit (for blockchain integration)
 NEXT_PUBLIC_ONCHAINKIT_API_KEY=
 NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID=
+
+# Polymarket Builder SDK (for Live Mode)
+POLYMARKET_BUILDER_ID=
 ```
 
 ### Dev Commands
@@ -179,6 +190,70 @@ NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID=
 - `npm run start` - Run production build
 - `npm run lint` - ESLint check
 
+### Dev Mode Features
+
+Press "M" key to toggle dev sidebar with:
+- Toggle between dummy data and Polymarket API
+- WebSocket connection status indicators
+- Theme controls
+- Testing utilities
+
+---
+
+## Core Features
+
+### Product Modes
+
+**Mode A: Social Fantasy (Default)**
+- Virtual points only, no real trades
+- +1 point for correct outcome
+- US-safe, reputation tracking only
+- No user funds held
+
+**Mode B: Live Builder Mode (Restricted)**
+- Real Polymarket orders via Builder SDK
+- Gasless execution on Polygon
+- Point-based scoring + real PnL
+- Geo-gated (non-US)
+
+### User Flows (Planned)
+
+1. **League Creation**
+   - Connect wallet (Base)
+   - Set league parameters (duration, max players, mode)
+   - Record in Supabase + minimal on-chain record
+
+2. **Snake Draft**
+   - Synchronous, 30-45 seconds per pick
+   - Small market slate (3 markets)
+   - Pick Market + Outcome Side (YES/NO)
+   - Auto-pick on timeout
+
+3. **In-League Swaps**
+   - Flip drafted side (max 1 swap/pick)
+   - Live Mode: Execute opposite trade on Polymarket
+
+4. **Scoring & Settlement**
+   - +1 point if final side matches resolution
+   - Backend commits winner on-chain
+   - Winner mints ERC-721 trophy NFT
+
+### Pages
+
+- **Home (/)** - League overview with cards
+- **Draft (/draft)** - Draft room with market selection and live prices
+- **Leagues (/leagues)** - Browse leagues, individual league pages
+- **Leaderboard (/leaderboard)** - Rankings
+- **Rewards (/rewards)** - Achievements and trophies
+- **Profile (/profile)** - User stats with grid layout
+
+### Components
+
+- **Bottom Navigation** - 5-tab bar (Home, Leagues, News, Analytics, Profile)
+- **League Cards** - Entry fee, members, prize pool, status badges
+- **Draft Slots** - Visual draft board with pick indicator
+- **Market Cards** - Prediction markets with YES/NO options and live prices
+- **Dev Sidebar** - Testing and development controls
 
 ---
 
@@ -196,6 +271,7 @@ Background: #1a1b26  (dark slate)
 Surface:    #242530  (lighter slate for cards)
 Primary:    #ff6b9d  (coral for CTAs)
 Success:    #10b981  (green)
+Warning:    #f59e0b  (amber)
 Text:       #ffffff  (white)
 Text Muted: #a1a1aa  (gray)
 ```
@@ -212,8 +288,75 @@ Text Muted: #a1a1aa  (gray)
 - **Status badges**: Color-coded (green/coral/blue/gray)
 - **Touch targets**: All ≥44px for mobile
 - **Navigation**: Fixed bottom bar, 5 tabs with icons + labels
+- **Live indicators**: Visual badges for real-time data connections
+
+---
+
+## Next Steps
+
+### Immediate Priorities (Hackathon MVP)
+
+1. **Supabase Setup**
+   - League state schema
+   - Player picks tracking
+   - WebSocket for draft synchronization
+
+2. **Snake Draft Implementation**
+   - Draft room real-time sync
+   - Pick timer (30-45 seconds)
+   - Auto-pick logic
+   - Market/side locking
+
+3. **Smart Contract Development**
+   - LeagueRegistry.sol on Base
+   - createLeague, commitWinner, mintTrophy functions
+   - ERC-721 trophy NFT implementation
+
+4. **Market Slate Filtering**
+   - Filter by active status
+   - Date relevance (today/weekly)
+   - Minimum liquidity threshold
+   - Select 3 markets for draft
+
+5. **Basic Scoring System**
+   - Track final positions
+   - Calculate +1 for correct outcomes
+   - Display winner
+
+### Medium-Term Goals
+
+- Polymarket Builder SDK integration for Live Mode
+- Geo-blocking implementation
+- Enhanced wallet integration (OnchainKit)
+- In-league swap mechanism
+- Token-gated leagues
+- Cross-chain/Farcaster reputation
+
+### Long-Term Vision
+
+- Reward overlays funded by Builder rewards
+- Automated trading strategies for Live Mode
+- Decentralized oracle support
+- Advanced scoring (odds-weighted)
+- Mobile app via Farcaster MiniKit
+
+---
+
+## Resources
+
+### Documentation
+- [Product Specification](./README.md)
+- [Polymarket API Guide](./docs/POLYMARKET_API.md)
+- [CLOB WebSocket Implementation](./docs/CLOB_WEBSOCKET.md)
+- [RTDS WebSocket Implementation](./docs/RTDS_WEBSOCKET.md)
+
+### External Links
+- [Polymarket Docs](https://docs.polymarket.com)
+- [Base Documentation](https://docs.base.org)
+- [OnchainKit](https://onchainkit.xyz)
+- [Polymarket Builder Program](https://polymarket.com/builders)
 
 ---
 
 **Last Updated**: December 3, 2024
-**Status**: MVP Development
+**Status**: MVP Development - Hackathon Phase
