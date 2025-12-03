@@ -61,14 +61,12 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    // Build Gamma API URL with query params
-    // Use the same pattern as the existing polymarket route
+    // Build Gamma API URL with query params - match curl command exactly
     const apiUrl = new URL('https://gamma-api.polymarket.com/markets');
     apiUrl.searchParams.set('closed', 'false');
-    apiUrl.searchParams.set('limit', '50');
-    apiUrl.searchParams.set('active', 'true');
-    // Gamma API may not support volume sorting directly, so we'll fetch and sort client-side
-    // Just get active markets and we'll filter/sort below
+    apiUrl.searchParams.set('limit', '200');
+    apiUrl.searchParams.set('order', 'volume24hr');
+    apiUrl.searchParams.set('ascending', 'false');
 
     const response = await fetch(apiUrl.toString(), {
       headers: {
@@ -93,23 +91,17 @@ export async function GET(request: NextRequest) {
 
     const markets: any[] = await response.json();
 
-    // Filter and process markets
-    // Gamma API may return different field names, so we handle both formats
+    // Filter and process markets - match curl+jq logic exactly
     const trendingMarkets: TrendingMarket[] = markets
       .filter((market: any) => {
-        // Filter by liquidity threshold - handle different field name variations
-        const liquidity = market.liquidityNum ?? parseFloat(market.liquidity || '0');
-        const isActive = market.active ?? true;
-        const isClosed = market.closed ?? false;
-        
-        // Only filter by liquidity threshold, active status, and not closed
-        // No order book requirement since we're just viewing data
-        return liquidity >= 50000 && isActive && !isClosed;
+        // Filter by liquidityNum directly (no fallbacks)
+        const liquidityNum = market.liquidityNum ?? 0;
+        return liquidityNum >= 50000;
       })
-      // Sort by volume24hr descending (handle different field names)
+      // Sort by volume24hr as a number, descending (use only volume24hr, no fallbacks)
       .sort((a: any, b: any) => {
-        const volumeA = parseFloat(a.volume24hr || a.volume24hrClob || a.volume || '0');
-        const volumeB = parseFloat(b.volume24hr || b.volume24hrClob || b.volume || '0');
+        const volumeA = parseFloat(a.volume24hr || '0');
+        const volumeB = parseFloat(b.volume24hr || '0');
         return volumeB - volumeA;
       })
       .slice(0, 20) // Take top 20
@@ -121,11 +113,12 @@ export async function GET(request: NextRequest) {
         const spread = bestAsk - bestBid;
         const midPrice = (bestBid + bestAsk) / 2 || lastPrice;
 
-        // Handle volume fields - Gamma may use different names
-        const volume24hr = market.volume24hr || market.volume24hrClob || market.volume || '0';
-        const volume1wk = market.volume1wk || market.volume || '0';
-        const volumeNum = market.volumeNum || market.volume || '0';
-        const liquidityNum = market.liquidityNum ?? parseFloat(market.liquidity || '0');
+        // Use volume24hr directly (no fallbacks for sorting consistency)
+        const volume24hr = market.volume24hr || '0';
+        const volume1wk = market.volume1wk || '0';
+        const volumeNum = market.volumeNum || '0';
+        // Use liquidityNum directly (no fallbacks)
+        const liquidityNum = market.liquidityNum ?? 0;
 
         return {
           id: market.id,
