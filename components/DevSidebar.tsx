@@ -11,7 +11,9 @@ import {
   Target,
   Palette,
   Smartphone,
-  Monitor
+  Monitor,
+  Wifi,
+  Activity
 } from 'lucide-react';
 
 export function DevSidebar() {
@@ -74,6 +76,51 @@ export function DevSidebar() {
                   checked={settings.showDummyData}
                   onChange={() => toggleSetting('showDummyData')}
                 />
+                <ToggleSwitch
+                  label="Enable CLOB WebSocket"
+                  description="Real-time token price updates"
+                  checked={settings.enableCLOBWebSocket}
+                  onChange={() => toggleSetting('enableCLOBWebSocket')}
+                />
+                <ToggleSwitch
+                  label="Enable RTDS WebSocket"
+                  description="Real-time market updates and crypto prices"
+                  checked={settings.enableRTDSWebSocket}
+                  onChange={() => toggleSetting('enableRTDSWebSocket')}
+                />
+              </div>
+            </section>
+
+            {/* WebSocket Settings */}
+            <section>
+              <h3 className="text-sm font-bold text-white mb-3 flex items-center gap-2">
+                <Wifi size={16} className="text-text-muted" />
+                WebSocket
+              </h3>
+              <div className="space-y-3">
+                <div className="p-3 bg-background rounded-lg">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-medium text-white">RTDS Channels</span>
+                    <Activity size={12} className="text-primary" />
+                  </div>
+                  <div className="flex flex-wrap gap-1">
+                    {settings.rtdsChannels.map(channel => (
+                      <span key={channel} className="text-[10px] bg-primary/20 text-primary px-2 py-1 rounded border border-primary/30">
+                        {channel}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+                <div className="p-3 bg-background rounded-lg">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-medium text-white">RTDS Filters</span>
+                  </div>
+                  <div className="space-y-1 text-[10px] text-text-dim">
+                    <div>Active Only: {settings.rtdsFilters.active_only ? 'Yes' : 'No'}</div>
+                    <div>Categories: {settings.rtdsFilters.categories.length > 0 ? settings.rtdsFilters.categories.join(', ') : 'All'}</div>
+                    <div>Symbols: {settings.rtdsFilters.symbols.join(', ')}</div>
+                  </div>
+                </div>
               </div>
             </section>
 

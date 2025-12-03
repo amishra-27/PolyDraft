@@ -6,23 +6,21 @@ export async function GET(request: NextRequest) {
   // Build Polymarket API URL
   const apiUrl = new URL('https://gamma-api.polymarket.com/markets');
 
-  // Forward query parameters with defaults for top trending active markets
-  const limit = searchParams.get('limit') || '10';
-  const active = searchParams.get('active') || 'true';
-  const sortBy = searchParams.get('sortBy') || 'volume';
-  const order = searchParams.get('order') || 'desc';
-  const category = searchParams.get('category');
-  const search = searchParams.get('search');
+  // Only forward supported Polymarket API parameters
+  const limit = searchParams.get('limit');
   const offset = searchParams.get('offset');
+  const closed = searchParams.get('closed');
+  const order = searchParams.get('order');
+  const ascending = searchParams.get('ascending');
+  const tagId = searchParams.get('tag_id');
 
-  // Set query parameters (no duplicates)
+  // Set query parameters that Polymarket API actually supports
   if (limit) apiUrl.searchParams.set('limit', limit);
-  if (active) apiUrl.searchParams.set('active', active);
-  if (sortBy) apiUrl.searchParams.set('sortBy', sortBy);
-  if (order) apiUrl.searchParams.set('order', order);
-  if (category) apiUrl.searchParams.set('category', category);
-  if (search) apiUrl.searchParams.set('search', search);
   if (offset) apiUrl.searchParams.set('offset', offset);
+  if (closed) apiUrl.searchParams.set('closed', closed);
+  if (order) apiUrl.searchParams.set('order', order);
+  if (ascending) apiUrl.searchParams.set('ascending', ascending);
+  if (tagId) apiUrl.searchParams.set('tag_id', tagId);
   
   try {
     // Add timeout to prevent hanging requests

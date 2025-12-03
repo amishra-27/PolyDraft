@@ -10,11 +10,11 @@ import { dummyLeagues } from "@/lib/data/dummyData";
 export default function Home() {
   const { settings } = useDevSettings();
 
-  // Use dummy data or empty arrays based on settings
-  // TODO: Replace with real league data when we implement league smart contracts
-  const activeLeagues = settings.showDummyData ? dummyLeagues.active : [];
-  const openLeagues = settings.showDummyData ? dummyLeagues.open : [];
-  const loading = false; // TODO: Add real loading state
+  // Always show dummy leagues for now since we don't have real league contracts yet
+  // This allows navigation to work properly
+  const activeLeagues = dummyLeagues.active;
+  const openLeagues = dummyLeagues.open;
+  const loading = false;
 
   return (
     <div className="pb-20">

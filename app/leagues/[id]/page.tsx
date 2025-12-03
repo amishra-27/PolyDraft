@@ -3,7 +3,8 @@ import { LeaderboardRow } from "@/components/LeaderboardRow";
 import { Clock, Users, Trophy, ArrowRight, ChevronLeft } from "lucide-react";
 import Link from "next/link";
 
-export default function LeaguePage({ params }: { params: { id: string } }) {
+export default async function LeaguePage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   return (
     <div className="pb-24">
       {/* Header */}

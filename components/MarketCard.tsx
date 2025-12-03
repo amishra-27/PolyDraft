@@ -1,32 +1,77 @@
-import { useState } from 'react';
-import { Check, X, TrendingUp, Clock } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { TrendingUp, Clock, Wifi, Activity, Zap } from 'lucide-react';
 import { PolymarketMarket } from '@/lib/api/types';
+import { parseOutcomePrices } from '@/lib/api/polymarket';
 
 interface MarketCardProps {
   market: PolymarketMarket;
   isSelected?: boolean;
   onSelect?: () => void;
   showVolume?: boolean;
+  livePrice?: number | null;
+  isLive?: boolean;
+  rtdsConnected?: boolean;
+  lastUpdate?: number | null;
 }
 
-export function MarketCard({ 
-  market, 
-  isSelected, 
-  onSelect, 
-  showVolume = true 
+export function MarketCard({
+  market,
+  isSelected,
+  onSelect,
+  showVolume = true,
+  livePrice = null,
+  isLive = false,
+  rtdsConnected = false,
+  lastUpdate = null
 }: MarketCardProps) {
   const [vote, setVote] = useState<'YES' | 'NO' | null>(null);
+  const [currentPrices, setCurrentPrices] = useState<[number, number]>(() => {
+    console.log('MarketCard parsing prices for:', market.question);
+    console.log('Raw outcomePrices:', market.outcomePrices, typeof market.outcomePrices);
+    const prices = parseOutcomePrices(market.outcomePrices);
+    console.log('Parsed prices:', prices);
+    return [prices[0] || 0.5, prices[1] || 0.5];
+  });
+  
+  // Update prices when live price changes
+  useEffect(() => {
+    if (livePrice !== null && market.outcomes?.length === 2) {
+      // Update YES price with live data, calculate NO price to maintain sum = 1
+      const newYesPrice = Math.max(0, Math.min(1, livePrice));
+      const newNoPrice = Math.max(0, Math.min(1, 1 - newYesPrice));
+      setCurrentPrices([newYesPrice, newNoPrice]);
+    } else {
+      // Revert to base prices when live data is not available
+      const basePrices = parseOutcomePrices(market.outcomePrices);
+      setCurrentPrices([basePrices[0] || 0.5, basePrices[1] || 0.5]);
+    }
+  }, [livePrice, market.outcomePrices, market.outcomes]);
   
   const isActive = market.active && !market.closed && !market.resolved;
   const category = market.category || 'other';
-  const endDate = new Date(market.endTime).toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric'
-  });
+
+  // Parse end date safely - try endDate first, then endTime
+  const getEndDate = () => {
+    try {
+      const dateStr = market.endDate || market.endTime;
+      if (!dateStr) return 'TBD';
+
+      const date = new Date(dateStr);
+      if (isNaN(date.getTime())) return 'TBD';
+
+      return date.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric'
+      });
+    } catch {
+      return 'TBD';
+    }
+  };
+
+  const endDate = getEndDate();
   
-  const yesPrice = market.outcomePrices?.[0] || 0;
-  const noPrice = market.outcomePrices?.[1] || 0;
+  const [yesPrice, noPrice] = currentPrices;
   const volume = parseFloat(market.volume || '0');
 
   return (
@@ -49,6 +94,18 @@ export function MarketCard({
               {category}
             </span>
             {isSelected && <span className="text-[10px] font-bold text-white bg-primary px-2 py-1 rounded-md animate-pulse">SELECTED</span>}
+            {isLive && (
+              <span className="text-[10px] font-bold text-success bg-success/10 px-2 py-1 rounded-md border border-success/20 flex items-center gap-1">
+                <Wifi size={10} className="animate-pulse" />
+                LIVE
+              </span>
+            )}
+            {rtdsConnected && lastUpdate && (
+              <span className="text-[10px] font-bold text-info bg-info/10 px-2 py-1 rounded-md border border-info/20 flex items-center gap-1">
+                <Activity size={10} className="animate-pulse" />
+                RTDS
+              </span>
+            )}
             {!isActive && (
               <span className="text-[10px] font-bold text-text-muted bg-white/5 px-2 py-1 rounded-md border border-white/10">
                 {market.resolved ? 'RESOLVED' : 'CLOSED'}
@@ -81,20 +138,26 @@ export function MarketCard({
             className={`h-9 px-3 rounded-lg flex flex-col items-center justify-center font-bold text-xs transition-all duration-200 border ${vote === 'YES'
                 ? 'bg-success text-black border-success shadow-[0_0_10px_rgba(16,185,129,0.4)] scale-105'
                 : 'bg-white/5 border-white/10 text-success hover:bg-success/10 hover:border-success/30'
-              }`}
+              } ${isLive ? 'ring-2 ring-success/30 animate-pulse' : ''}`}
           >
             <span>YES</span>
-            <span className="text-[10px] opacity-80">{(yesPrice * 100).toFixed(0)}%</span>
+            <span className={`text-[10px] ${isLive ? 'text-success font-bold' : 'opacity-80'}`}>
+              {Math.round(yesPrice * 100)}%
+            </span>
+            {isLive && <span className="w-1 h-1 bg-success rounded-full animate-pulse" />}
           </button>
           <button
             onClick={(e) => { e.stopPropagation(); setVote('NO'); }}
             className={`h-9 px-3 rounded-lg flex flex-col items-center justify-center font-bold text-xs transition-all duration-200 border ${vote === 'NO'
                 ? 'bg-error text-white border-error shadow-[0_0_10px_rgba(239,68,68,0.4)] scale-105'
                 : 'bg-white/5 border-white/10 text-error hover:bg-error/10 hover:border-error/30'
-              }`}
+              } ${isLive ? 'ring-2 ring-error/30 animate-pulse' : ''}`}
           >
             <span>NO</span>
-            <span className="text-[10px] opacity-80">{(noPrice * 100).toFixed(0)}%</span>
+            <span className={`text-[10px] ${isLive ? 'text-error font-bold' : 'opacity-80'}`}>
+              {Math.round(noPrice * 100)}%
+            </span>
+            {isLive && <span className="w-1 h-1 bg-error rounded-full animate-pulse" />}
           </button>
         </div>
       </div>

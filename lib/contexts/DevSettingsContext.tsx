@@ -6,6 +6,16 @@ interface DevSettings {
   showDummyData: boolean;
   showDebugInfo: boolean;
   highlightTouchTargets: boolean;
+  enableLiveUpdates: boolean;
+  refreshInterval: number;
+  enableCLOBWebSocket: boolean;
+  enableRTDSWebSocket: boolean;
+  rtdsChannels: string[];
+  rtdsFilters: {
+    categories: string[];
+    active_only: boolean;
+    symbols: string[];
+  };
 }
 
 interface DevSettingsContextType {
@@ -17,9 +27,19 @@ interface DevSettingsContextType {
 const DevSettingsContext = createContext<DevSettingsContextType | undefined>(undefined);
 
 const DEFAULT_SETTINGS: DevSettings = {
-  showDummyData: true,
+  showDummyData: false,
   showDebugInfo: false,
   highlightTouchTargets: false,
+  enableLiveUpdates: true,
+  refreshInterval: 30000,
+  enableCLOBWebSocket: true,
+  enableRTDSWebSocket: true,
+  rtdsChannels: ['markets', 'crypto_prices'],
+  rtdsFilters: {
+    categories: [],
+    active_only: true,
+    symbols: ['BTC', 'ETH', 'SOL']
+  },
 };
 
 export function DevSettingsProvider({ children }: { children: React.ReactNode }) {

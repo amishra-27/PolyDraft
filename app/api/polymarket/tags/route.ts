@@ -1,35 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {
-  const { searchParams } = new URL(request.url);
-
-  // Build Polymarket API URL
-  const apiUrl = new URL('https://gamma-api.polymarket.com/markets');
-
-  // Forward query parameters with defaults for top trending active markets
-  const limit = searchParams.get('limit') || '10';
-  const active = searchParams.get('active') || 'true';
-  const sortBy = searchParams.get('sortBy') || 'volume';
-  const order = searchParams.get('order') || 'desc';
-  const category = searchParams.get('category');
-  const search = searchParams.get('search');
-  const offset = searchParams.get('offset');
-
-  // Set query parameters (no duplicates)
-  if (limit) apiUrl.searchParams.set('limit', limit);
-  if (active) apiUrl.searchParams.set('active', active);
-  if (sortBy) apiUrl.searchParams.set('sortBy', sortBy);
-  if (order) apiUrl.searchParams.set('order', order);
-  if (category) apiUrl.searchParams.set('category', category);
-  if (search) apiUrl.searchParams.set('search', search);
-  if (offset) apiUrl.searchParams.set('offset', offset);
-  
   try {
     // Add timeout to prevent hanging requests
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
 
-    const response = await fetch(apiUrl.toString(), {
+    const response = await fetch('https://gamma-api.polymarket.com/tags', {
       headers: {
         'Content-Type': 'application/json',
         'User-Agent': 'PolyDraft/1.0',
@@ -44,16 +21,16 @@ export async function GET(request: NextRequest) {
     clearTimeout(timeoutId);
 
     if (!response.ok) {
-      console.error('Polymarket API Error:', {
+      console.error('Polymarket Tags API Error:', {
         status: response.status,
         statusText: response.statusText,
-        url: apiUrl.toString()
+        url: 'https://gamma-api.polymarket.com/tags'
       });
       return NextResponse.json(
         { 
           error: `HTTP ${response.status}: ${response.statusText}`,
           status: response.status,
-          url: apiUrl.toString()
+          url: 'https://gamma-api.polymarket.com/tags'
         },
         { status: response.status }
       );
@@ -70,7 +47,7 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error('Polymarket API Error:', error);
+    console.error('Polymarket Tags API Error:', error);
     
     // More specific error handling
     let errorMessage = 'Unknown error';
@@ -92,7 +69,7 @@ export async function GET(request: NextRequest) {
       { 
         error: errorMessage,
         timestamp: new Date().toISOString(),
-        url: apiUrl.toString()
+        url: 'https://gamma-api.polymarket.com/tags'
       },
       { status: statusCode }
     );

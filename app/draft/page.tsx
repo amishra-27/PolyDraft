@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/Button';
 import { Skeleton, MarketCardSkeleton } from '@/components/ui/Skeleton';
 import { Clock, Filter, Search, AlertCircle } from 'lucide-react';
 import { useDevSettings } from '@/lib/contexts/DevSettingsContext';
-import { useTrendingMarkets, useMarketCategories } from '@/lib/hooks/usePolymarket';
+import { useDraftPageData } from '@/lib/hooks/usePolymarket';
 import { PolymarketMarket, MarketCategory } from '@/lib/api/types';
 import { dummyMarkets } from '@/lib/data/dummyData';
 
@@ -17,8 +17,18 @@ export default function DraftPage() {
   const { settings } = useDevSettings();
   
   // Use real data if available, otherwise fallback to dummy data
-  const { markets, loading, error, refetch, loadMore, hasMore } = useTrendingMarkets(50);
-  const { categories, loading: categoriesLoading } = useMarketCategories();
+  const { 
+    markets, 
+    categories, 
+    loading, 
+    error, 
+    refetch, 
+    clobConnected, 
+    clobConnecting,
+    rtdsConnected,
+    rtdsConnecting,
+    fullySynchronized 
+  } = useDraftPageData();
 
   // Filter markets by category
   const filteredMarkets = selectedCategory === 'all' 
@@ -40,6 +50,22 @@ export default function DraftPage() {
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
               </span>
               <p className="text-primary font-bold text-xs uppercase tracking-wider">Your Turn • 00:45</p>
+              {fullySynchronized && (
+                <span className="text-[10px] font-bold text-success bg-success/10 px-2 py-1 rounded-md border border-success/20 flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 bg-success rounded-full animate-pulse" />
+                  LIVE SYNC
+                </span>
+              )}
+              {(clobConnecting || rtdsConnecting) && (
+                <span className="text-[10px] font-bold text-warning bg-warning/10 px-2 py-1 rounded-md border border-warning/20 flex items-center gap-1">
+                  Connecting...
+                </span>
+              )}
+              {clobConnected && !rtdsConnected && (
+                <span className="text-[10px] font-bold text-info bg-info/10 px-2 py-1 rounded-md border border-info/20 flex items-center gap-1">
+                  CLOB Only
+                </span>
+              )}
             </div>
           </div>
           <div className="bg-surface/80 backdrop-blur-md px-4 py-2 rounded-xl border border-primary/30 flex items-center gap-3 shadow-[0_0_15px_rgba(6,182,212,0.15)]">
@@ -70,7 +96,7 @@ export default function DraftPage() {
           >
             All Markets
           </Button>
-          {categoriesLoading ? (
+          {loading && categories.length === 0 ? (
             <Skeleton width={60} height={32} variant="rectangular" />
           ) : (
             categories.map((category) => (
@@ -130,11 +156,11 @@ export default function DraftPage() {
                   volume: '0',
                   liquidity: '0',
                   tokenPrice: '0',
-                  outcomePrices: [0.5, 0.5],
+                  outcomePrices: '0.5,0.5',
                   outcomes: ['YES', 'NO'],
                   tags: [dummyMarket.category],
                   category: dummyMarket.category,
-                  clobTokenIds: [],
+                  clobTokenIds: '',
                   events: [],
                   negRisk: false,
                 };
@@ -149,29 +175,19 @@ export default function DraftPage() {
                 );
               }
               
-              return (
-                <MarketCard
-                  key={market.id}
-                  market={market as PolymarketMarket}
-                  isSelected={selectedMarket === market.id}
-                  onSelect={() => setSelectedMarket(market.id)}
-                />
-              );
+                 return (
+                   <MarketCard
+                     key={market.id}
+                     market={market as PolymarketMarket}
+                     isSelected={selectedMarket === market.id}
+                     onSelect={() => setSelectedMarket(market.id)}
+                     isLive={clobConnected}
+                     rtdsConnected={rtdsConnected}
+                   />
+                 );
             })}
             
-            {/* Load More Button */}
-            {hasMore && !settings.showDummyData && (
-              <div className="text-center py-4">
-                <Button
-                  variant="secondary"
-                  onClick={loadMore}
-                  disabled={loading}
-                  className="w-full"
-                >
-                  {loading ? 'Loading...' : 'Load More Markets'}
-                </Button>
-              </div>
-            )}
+            {/* Note: No Load More button needed since we fetch exactly 20 markets */}
           </>
         ) : (
           <div className="p-12 bg-surface/50 backdrop-blur-md border border-white/10 rounded-xl text-center">
