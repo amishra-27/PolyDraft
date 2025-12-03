@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/Button';
-import { Wallet, Check } from 'lucide-react';
+import { Shield } from 'lucide-react';
 
 interface ConnectWalletProps {
   className?: string;
@@ -12,11 +12,15 @@ export function ConnectWallet({ className }: ConnectWalletProps) {
   const [isConnected, setIsConnected] = useState(false);
   const [address, setAddress] = useState<string | null>(null);
 
-  const handleConnect = () => {
-    // Placeholder for wallet connection logic
-    // In a real app, this would integrate with wallet providers (MetaMask, WalletConnect, etc.)
-    setIsConnected(true);
-    setAddress('0x1234...5678'); // Mock address
+  const handleConnect = async () => {
+    // Placeholder for Base authentication
+    // This will be implemented with proper Base wallet connection
+    try {
+      setIsConnected(true);
+      setAddress('0x1234...5678'); // Mock Base address
+    } catch (error) {
+      console.error('Failed to connect to Base:', error);
+    }
   };
 
   const handleDisconnect = () => {
@@ -50,8 +54,8 @@ export function ConnectWallet({ className }: ConnectWalletProps) {
       onClick={handleConnect}
       className={`opacity-90 hover:opacity-100 ${className}`}
     >
-      <Wallet size={18} className="mr-2" />
-      Connect Wallet
+      <Shield size={18} className="mr-2" />
+      Authenticate with Base
     </Button>
   );
 }

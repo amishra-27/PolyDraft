@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { Navbar } from "@/components/Navbar";
+import { DevSettingsProvider } from "@/lib/contexts/DevSettingsContext";
+import { DevSidebar } from "@/components/DevSidebar";
 
 export const metadata: Metadata = {
   title: "PolyDraft",
@@ -13,12 +15,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" style={{ backgroundColor: '#1a1b26' }}>
-      <body className="min-h-screen pb-20 bg-background text-text antialiased selection:bg-primary selection:text-white" style={{ backgroundColor: '#1a1b26' }}>
-        <main className="max-w-md mx-auto min-h-screen p-4">
-          {children}
-        </main>
-        <Navbar />
+    <html lang="en">
+      <body className="min-h-screen pb-20 bg-background text-text antialiased selection:bg-accent selection:text-white font-sans">
+        <DevSettingsProvider>
+          <main className="max-w-md mx-auto min-h-screen p-4 relative z-10">
+            {children}
+          </main>
+          <Navbar />
+          <DevSidebar />
+        </DevSettingsProvider>
       </body>
     </html>
   );

@@ -1,16 +1,18 @@
+@import url('https://fonts.googleapis.com/css2?family=TikTok+Sans:opsz,wght@12..36,300..900&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
   --foreground-rgb: 255, 255, 255;
-  --background-rgb: 26, 27, 38; /* #1a1b26 - rich dark slate blue-gray */
+  --background-rgb: 15, 10, 10; /* #0f0a0a - deep dark red-black */
 }
 
 body {
   color: rgb(var(--foreground-rgb));
   background: rgb(var(--background-rgb)) !important;
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'TikTok Sans', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 html {
@@ -21,23 +23,70 @@ html {
   .text-balance {
     text-wrap: balance;
   }
+  
+  /* Line clamp utilities */
+  .line-clamp-1 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+  }
+  
+  .line-clamp-2 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+  
+  .line-clamp-3 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+  }
+  
+  /* No scrollbar utility */
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  
+  /* Linear fade mask for scrollable content */
+  .mask-linear-fade {
+    mask-image: linear-gradient(to right, 
+      transparent 0%, 
+      black 5%, 
+      black 95%, 
+      transparent 100%
+    );
+    -webkit-mask-image: linear-gradient(to right, 
+      transparent 0%, 
+      black 5%, 
+      black 95%, 
+      transparent 100%
+    );
+  }
 }
 
-/* Custom Scrollbar for dark theme */
+/* Custom Scrollbar for red dark theme */
 ::-webkit-scrollbar {
   width: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #1a1b26;
+  background: #0f0a0a;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #4a5568;
+  background: #ef4444;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #5a6578;
+  background: #dc2626;
 }
-

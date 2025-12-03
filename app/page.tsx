@@ -1,8 +1,21 @@
+'use client';
+
 import { LeagueCard } from "@/components/LeagueCard";
 import { ConnectWallet } from "@/components/ConnectWallet";
-import { Search } from "lucide-react";
+import { Skeleton, LeagueCardSkeleton } from "@/components/ui/Skeleton";
+import { Search, AlertCircle, Trophy } from "lucide-react";
+import { useDevSettings } from "@/lib/contexts/DevSettingsContext";
+import { dummyLeagues } from "@/lib/data/dummyData";
 
 export default function Home() {
+  const { settings } = useDevSettings();
+
+  // Use dummy data or empty arrays based on settings
+  // TODO: Replace with real league data when we implement league smart contracts
+  const activeLeagues = settings.showDummyData ? dummyLeagues.active : [];
+  const openLeagues = settings.showDummyData ? dummyLeagues.open : [];
+  const loading = false; // TODO: Add real loading state
+
   return (
     <div className="pb-20">
       <header className="mb-6 pt-2">
@@ -24,27 +37,27 @@ export default function Home() {
           <h2 className="text-lg font-bold text-white">Your Leagues</h2>
           <button className="text-primary text-xs font-bold uppercase">View All</button>
         </div>
-        
-        <div className="space-y-3">
-          <LeagueCard
-            id="1"
-            title="Crypto Whales 2024"
-            entryFee="$50"
-            prizePool="$500"
-            members={8}
-            maxMembers={10}
-            status="drafting"
-          />
-          <LeagueCard
-            id="2"
-            title="Election Prediction"
-            entryFee="$10"
-            prizePool="$100"
-            members={10}
-            maxMembers={10}
-            status="active"
-          />
-        </div>
+
+        {loading ? (
+          <div className="space-y-3">
+            <LeagueCardSkeleton />
+            <LeagueCardSkeleton />
+          </div>
+        ) : activeLeagues.length > 0 ? (
+          <div className="space-y-3">
+            {activeLeagues.map((league) => (
+              <LeagueCard key={league.id} {...league} />
+            ))}
+          </div>
+        ) : (
+          <div className="p-8 bg-surface border border-white/5 rounded-xl text-center">
+            <Trophy size={48} className="text-text-muted mx-auto mb-4" />
+            <p className="text-text-muted text-sm">No active leagues</p>
+            <p className="text-text-dim text-xs mt-1">
+              {!settings.showDummyData ? "Create or join a league to get started" : "Enable dummy data in dev settings to see examples"}
+            </p>
+          </div>
+        )}
       </section>
 
       {/* Open Leagues Section */}
@@ -54,28 +67,28 @@ export default function Home() {
           <button className="text-primary text-xs font-bold uppercase">Filter</button>
         </div>
 
-        <div className="space-y-3">
-          <LeagueCard
-            id="3"
-            title="Tech Stocks Q3"
-            entryFee="$25"
-            prizePool="$250"
-            members={3}
-            maxMembers={10}
-            status="open"
-          />
-          <LeagueCard
-            id="4"
-            title="Sports Futures"
-            entryFee="$5"
-            prizePool="$50"
-            members={1}
-            maxMembers={10}
-            status="open"
-          />
-        </div>
+        {loading ? (
+          <div className="space-y-3">
+            <LeagueCardSkeleton />
+            <LeagueCardSkeleton />
+            <LeagueCardSkeleton />
+          </div>
+        ) : openLeagues.length > 0 ? (
+          <div className="space-y-3">
+            {openLeagues.map((league) => (
+              <LeagueCard key={league.id} {...league} />
+            ))}
+          </div>
+        ) : (
+          <div className="p-8 bg-surface border border-white/5 rounded-xl text-center">
+            <Trophy size={48} className="text-text-muted mx-auto mb-4" />
+            <p className="text-text-muted text-sm">No open leagues</p>
+            <p className="text-text-dim text-xs mt-1">
+              {!settings.showDummyData ? "Browse available leagues or create your own" : "Enable dummy data in dev settings to see examples"}
+            </p>
+          </div>
+        )}
       </section>
-
     </div>
   );
 }

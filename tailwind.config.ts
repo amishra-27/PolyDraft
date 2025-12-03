@@ -9,23 +9,25 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Modern sophisticated dark theme
-        background: "#1a1b26", // Rich dark slate blue-gray
-        surface: "#242530", // Lighter slate for cards
-        "surface-hover": "#2a2b38", // Hover state
-        primary: "#ff6b9d", // Vibrant coral/salmon accent
-        "primary-hover": "#ff4d7a", // Deeper coral on hover
-        "primary-light": "#ff8db3", // Lighter coral
-        secondary: "#7c3aed", // Vibrant purple secondary
-        "secondary-light": "#a78bfa", // Light purple
-        text: "#ffffff",
-        "text-muted": "#a1a1aa", // Muted gray
-        "text-dim": "#71717a", // Dim gray
-        success: "#10b981", // Emerald green
-        accent: "#ff6b9d", // Matching primary
+        // Red-themed Dark Design
+        background: "#0f0a0a", // Deep dark red-black
+        surface: "#1a0f0f", // Dark red surface
+        "surface-hover": "#2a1515", // Lighter red surface on hover
+        primary: "#ef4444", // Vibrant red (primary CTA)
+        "primary-hover": "#dc2626", // Deeper red on hover
+        "primary-light": "#f87171", // Lighter red for accents
+        secondary: "#ff6b6b", // Coral red (secondary actions)
+        "secondary-hover": "#ff5252", // Deeper coral
+        accent: "#ff4444", // Bright red accent
+        success: "#10b981", // Keep green for success
+        warning: "#f59e0b", // Keep amber for warning
+        error: "#b91c1c", // Deep red for errors
+        text: "#ffffff", // Pure white text
+        "text-muted": "#d1a3a3", // Muted red-tinted gray
+        "text-dim": "#9a7a7a", // Dimmer red-tinted gray
       },
       fontFamily: {
-        sans: ['var(--font-geist-sans)'],
+        sans: ['TikTok Sans', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
       },
     },
   },
