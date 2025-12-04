@@ -85,14 +85,11 @@ function SplashDrawer({ isOpen, onClose, onAuthenticate }: SplashDrawerProps) {
           {/* Logo */}
           <div className="flex justify-center mb-6">
             <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center shadow-lg shadow-primary/30">
-              <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M8 28L14 22L20 25L26 18L32 24" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                <circle cx="14" cy="22" r="1.5" fill="white"/>
-                <circle cx="20" cy="25" r="1.5" fill="white"/>
-                <circle cx="26" cy="18" r="1.5" fill="white"/>
-                <circle cx="8" cy="28" r="1.5" fill="white"/>
-                <circle cx="32" cy="24" r="1.5" fill="white"/>
-              </svg>
+              <img 
+                src="https://cdn.brandfetch.io/id6XsSOVVS/theme/dark/logo.svg?c=1bxid64Mup7aczewSAYMX&t=1757929765938" 
+                alt="Base Logo" 
+                className="w-10 h-10"
+              />
             </div>
           </div>
 
