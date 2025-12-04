@@ -178,14 +178,129 @@ export interface WebSocketConfig {
 // ============================================================================
 
 /**
- * Real-time price data for a market token
+ * Connection state for RTDS WebSocket
+ */
+export interface RTDSConnectionState {
+  isConnected: boolean;
+  isConnecting: boolean;
+  connected: boolean;
+  connecting: boolean;
+  error?: string;
+  lastConnected?: Date;
+  reconnectAttempts: number;
+  subscriptions?: string[];
+}
+
+/**
+ * Market update data structure
+ */
+export interface RTDSMarketUpdate {
+  market_id: string;
+  question: string;
+  description?: string;
+  outcomes: Array<{
+    outcome: string;
+    price: number;
+    probability: number;
+  }>;
+  volume?: string;
+  liquidity?: string;
+  end_time?: string;
+  category?: string;
+  image_url?: string;
+  slug?: string;
+  active: boolean;
+  closed: boolean;
+  resolved: boolean;
+  timestamp: number;
+}
+
+/**
+ * Crypto price update data structure
+ */
+export interface RTDSCryptoPriceUpdate {
+  symbol: string;
+  price: number;
+  change_24h: number;
+  volume_24h: number;
+  market_cap?: number;
+  timestamp: number;
+}
+
+/**
+ * RTDS WebSocket configuration
+ */
+export interface RTDSWebSocketConfig {
+  url?: string;
+  reconnectAttempts?: number;
+  reconnectDelay?: number;
+  subscriptions?: RTDSSubscription[];
+}
+
+/**
+ * RTDS subscription message
+ */
+export interface RTDSSubscriptionMessage {
+  action: 'subscribe' | 'unsubscribe';
+  topic: string;
+  type?: string;
+  filters?: Record<string, any>;
+}
+
+/**
+ * RTDS market update message
+ */
+export interface RTDSMarketUpdateMessage extends RTDSMessage<RTDSMarketUpdate[]> {
+  topic: 'markets';
+  type: 'update';
+  data: RTDSMarketUpdate[];
+}
+
+/**
+ * RTDS crypto price message
+ */
+export interface RTDSCryptoPriceMessage extends RTDSMessage<RTDSCryptoPriceUpdate[]> {
+  topic: 'crypto_prices';
+  type: 'update';
+  data: RTDSCryptoPriceUpdate[];
+}
+
+/**
+ * RTDS heartbeat message
+ */
+export interface RTDSHeartbeatMessage extends RTDSMessage<null> {
+  topic: 'heartbeat';
+  type: 'ping';
+}
+
+/**
+ * RTDS error message
+ */
+export interface RTDSErrorMessage extends RTDSMessage<{ error: string; code?: string }> {
+  topic: 'error';
+  type: 'error';
+}
+
+/**
+ * RTDS data state
+ */
+export interface RTDSDataState {
+  markets: Record<string, RTDSMarketUpdate>;
+  cryptoPrices: Record<string, RTDSCryptoPriceUpdate>;
+  lastUpdated: number;
+  lastMarketUpdate?: number;
+  lastCryptoUpdate?: number;
+}
+
+/**
+ * Token price information
  */
 export interface TokenPrice {
-  tokenId: string;
-  price: number;
-  bestBid?: number;
-  bestAsk?: number;
-  lastUpdate: number;
+  token_id: string;
+  price: string;
+  best_bid?: string;
+  best_ask?: string;
+  timestamp: number;
 }
 
 /**

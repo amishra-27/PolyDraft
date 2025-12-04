@@ -15,7 +15,7 @@ export default async function LeaguePage({ params }: { params: Promise<{ id: str
         <h1 className="text-2xl font-bold text-white mb-2">Crypto Whales 2024</h1>
         <div className="flex items-center gap-4 text-text-muted text-xs">
           <span className="bg-primary/10 text-primary px-2 py-0.5 rounded font-bold">DRAFTING NOW</span>
-          <span>ID: #{params.id}</span>
+          <span>ID: #{id}</span>
         </div>
       </div>
 

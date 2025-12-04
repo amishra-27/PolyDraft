@@ -145,7 +145,7 @@ export function useRealtimeMarkets({
     const yesTokenId = tokenIds[0];
     const tokenPrice = livePrices.get(yesTokenId);
 
-    return tokenPrice?.price ?? null;
+    return tokenPrice?.price ? parseFloat(tokenPrice.price) : null;
   }, [livePrices]);
 
   // Get markets with live prices applied

@@ -184,28 +184,28 @@ export class CLOBMarketWebSocket {
     switch (message.event_type) {
       case 'price_change':
         this.updateTokenPrice(tokenId, {
-          tokenId,
-          price: message.price,
-          bestBid: message.best_bid,
-          bestAsk: message.best_ask,
-          lastUpdate: message.timestamp,
+          token_id: tokenId,
+          price: message.price.toString(),
+          best_bid: message.best_bid?.toString(),
+          best_ask: message.best_ask?.toString(),
+          timestamp: message.timestamp,
         });
         break;
 
       case 'last_trade_price':
         this.updateTokenPrice(tokenId, {
-          tokenId,
-          price: message.price,
-          lastUpdate: message.timestamp,
+          token_id: tokenId,
+          price: message.price.toString(),
+          timestamp: message.timestamp,
         });
         break;
 
       case 'trade':
         const tradePrice = parseFloat(message.price);
         this.updateTokenPrice(tokenId, {
-          tokenId,
-          price: tradePrice,
-          lastUpdate: message.timestamp,
+          token_id: tokenId,
+          price: tradePrice.toString(),
+          timestamp: message.timestamp,
         });
         break;
     }
@@ -226,11 +226,11 @@ export class CLOBMarketWebSocket {
   private updateTokenPrice(tokenId: string, update: Partial<TokenPrice>): void {
     const existing = this.tokenPrices.get(tokenId);
     const updated: TokenPrice = {
-      tokenId,
-      price: update.price ?? existing?.price ?? 0,
-      bestBid: update.bestBid ?? existing?.bestBid,
-      bestAsk: update.bestAsk ?? existing?.bestAsk,
-      lastUpdate: update.lastUpdate ?? Date.now(),
+      token_id: tokenId,
+      price: update.price ?? existing?.price ?? '0',
+      best_bid: update.best_bid ?? existing?.best_bid,
+      best_ask: update.best_ask ?? existing?.best_ask,
+      timestamp: update.timestamp ?? existing?.timestamp ?? Date.now(),
     };
 
     this.tokenPrices.set(tokenId, updated);

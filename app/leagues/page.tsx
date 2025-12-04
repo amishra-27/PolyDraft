@@ -2,14 +2,32 @@
 
 import { LeagueCard } from "@/components/LeagueCard";
 import { Search, Filter } from "lucide-react";
-import { useDevSettings } from "@/lib/contexts/DevSettingsContext";
-import { dummyLeagues } from "@/lib/data/dummyData";
+import { SkeletonLoader } from "@/components/ui/SkeletonLoader";
+import { useLeagues } from "@/lib/hooks/useLeagues";
 
 export default function LeaguesPage() {
-  const { settings } = useDevSettings();
+  const { leagues, loading } = useLeagues();
 
-  const activeLeagues = settings.showDummyData ? dummyLeagues.active : [];
-  const openLeagues = settings.showDummyData ? dummyLeagues.open : [];
+  // Filter and transform leagues for LeagueCard
+  const activeLeagues = leagues?.filter(league => league.status === 'active').map(league => ({
+    id: league.id,
+    title: league.name,
+    entryFee: "Free",
+    prizePool: "$0",
+    members: 0,
+    maxMembers: league.max_players || 6,
+    status: league.status as 'open' | 'drafting' | 'active' | 'ended'
+  })) || [];
+
+  const openLeagues = leagues?.filter(league => league.status === 'open').map(league => ({
+    id: league.id,
+    title: league.name,
+    entryFee: "Free",
+    prizePool: "$0",
+    members: 0,
+    maxMembers: league.max_players || 6,
+    status: league.status as 'open' | 'drafting' | 'active' | 'ended'
+  })) || [];
 
   return (
     <div className="pb-24">
@@ -37,7 +55,9 @@ export default function LeaguesPage() {
           <button className="text-primary text-xs font-bold uppercase">View All</button>
         </div>
 
-        {activeLeagues.length > 0 ? (
+        {loading ? (
+          <SkeletonLoader type="league" count={2} />
+        ) : activeLeagues.length > 0 ? (
           <div className="space-y-3">
             {activeLeagues.map((league) => (
               <LeagueCard key={league.id} {...league} />
@@ -47,7 +67,7 @@ export default function LeaguesPage() {
           <div className="p-8 bg-surface border border-white/5 rounded-xl text-center">
             <p className="text-text-muted text-sm">No active leagues</p>
             <p className="text-text-dim text-xs mt-1">
-              {!settings.showDummyData && "Enable dummy data in dev settings"}
+              Create or join a league to get started
             </p>
           </div>
         )}
@@ -60,7 +80,9 @@ export default function LeaguesPage() {
           <button className="text-primary text-xs font-bold uppercase">Filter</button>
         </div>
 
-        {openLeagues.length > 0 ? (
+        {loading ? (
+          <SkeletonLoader type="league" count={3} />
+        ) : openLeagues.length > 0 ? (
           <div className="space-y-3">
             {openLeagues.map((league) => (
               <LeagueCard key={league.id} {...league} />
@@ -70,7 +92,7 @@ export default function LeaguesPage() {
           <div className="p-8 bg-surface border border-white/5 rounded-xl text-center">
             <p className="text-text-muted text-sm">No open leagues available</p>
             <p className="text-text-dim text-xs mt-1">
-              {!settings.showDummyData && "Enable dummy data in dev settings"}
+              Check back later for new leagues
             </p>
           </div>
         )}

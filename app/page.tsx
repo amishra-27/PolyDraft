@@ -1,20 +1,42 @@
 'use client';
 
+import { useState } from 'react';
 import { LeagueCard } from "@/components/LeagueCard";
-import { ConnectWallet } from "@/components/ConnectWallet";
-import { Skeleton, LeagueCardSkeleton } from "@/components/ui/Skeleton";
-import { Search, AlertCircle, Trophy } from "lucide-react";
+import { CreateLeagueModal } from "@/components/CreateLeagueModal";
+import { JoinLeagueButton } from "@/components/JoinLeagueButton";
+
+import { Search, Trophy, Plus } from "lucide-react";
 import { useDevSettings } from "@/lib/contexts/DevSettingsContext";
-import { dummyLeagues } from "@/lib/data/dummyData";
+import { SkeletonLoader } from "@/components/ui/SkeletonLoader";
+import { useLeagues } from "@/lib/hooks/useLeagues";
 
 export default function Home() {
   const { settings } = useDevSettings();
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const { leagues, loading, error } = useLeagues();
 
-  // Always show dummy leagues for now since we don't have real league contracts yet
-  // This allows navigation to work properly
-  const activeLeagues = dummyLeagues.active;
-  const openLeagues = dummyLeagues.open;
-  const loading = false;
+  // Filter leagues by status and transform for LeagueCard
+  const activeLeagues = leagues?.filter(league => league.status === 'active').map(league => ({
+    id: league.id,
+    title: league.name,
+    entryFee: "Free", // TODO: Add entry fee to schema
+    prizePool: "$0", // TODO: Calculate from entry fees
+    members: 0, // TODO: Get from league_members count
+    maxMembers: league.max_players || 6,
+    status: league.status as 'open' | 'drafting' | 'active' | 'ended'
+  })) || [];
+  
+  const openLeagues = leagues?.filter(league => league.status === 'open').map(league => ({
+    id: league.id,
+    title: league.name,
+    entryFee: "Free", // TODO: Add entry fee to schema
+    prizePool: "$0", // TODO: Calculate from entry fees
+    members: 0, // TODO: Get from league_members count
+    maxMembers: league.max_players || 6,
+    status: league.status as 'open' | 'drafting' | 'active' | 'ended'
+  })) || [];
+  
+  const isLoadingLeagues = loading;
 
   return (
     <div className="pb-20">
@@ -28,7 +50,25 @@ export default function Home() {
             <Search size={20} className="text-text-muted" />
           </div>
         </div>
-        <ConnectWallet className="w-full" />
+        
+        {/* League Actions */}
+        <div className="flex gap-3 mb-4">
+          <button
+            onClick={() => setIsCreateModalOpen(true)}
+            className="flex-1 bg-primary hover:bg-primary/90 text-white font-semibold py-3 px-4 rounded-lg transition-colors flex items-center justify-center gap-2"
+          >
+            <Plus size={18} />
+            Create League
+          </button>
+          <JoinLeagueButton 
+            className="flex-1"
+            onLeagueJoined={(leagueId) => {
+              console.log('Joined league:', leagueId);
+            }}
+          />
+        </div>
+        
+
       </header>
 
       {/* Active Leagues Section */}
@@ -39,10 +79,7 @@ export default function Home() {
         </div>
 
         {loading ? (
-          <div className="space-y-3">
-            <LeagueCardSkeleton />
-            <LeagueCardSkeleton />
-          </div>
+          <SkeletonLoader type="league" count={2} />
         ) : activeLeagues.length > 0 ? (
           <div className="space-y-3">
             {activeLeagues.map((league) => (
@@ -54,7 +91,7 @@ export default function Home() {
             <Trophy size={48} className="text-text-muted mx-auto mb-4" />
             <p className="text-text-muted text-sm">No active leagues</p>
             <p className="text-text-dim text-xs mt-1">
-              {!settings.showDummyData ? "Create or join a league to get started" : "Enable dummy data in dev settings to see examples"}
+              Create or join a league to get started
             </p>
           </div>
         )}
@@ -68,11 +105,7 @@ export default function Home() {
         </div>
 
         {loading ? (
-          <div className="space-y-3">
-            <LeagueCardSkeleton />
-            <LeagueCardSkeleton />
-            <LeagueCardSkeleton />
-          </div>
+          <SkeletonLoader type="league" count={3} />
         ) : openLeagues.length > 0 ? (
           <div className="space-y-3">
             {openLeagues.map((league) => (
@@ -84,11 +117,17 @@ export default function Home() {
             <Trophy size={48} className="text-text-muted mx-auto mb-4" />
             <p className="text-text-muted text-sm">No open leagues</p>
             <p className="text-text-dim text-xs mt-1">
-              {!settings.showDummyData ? "Browse available leagues or create your own" : "Enable dummy data in dev settings to see examples"}
+              Browse available leagues or create your own
             </p>
           </div>
         )}
       </section>
+      
+      {/* Create League Modal */}
+      <CreateLeagueModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+      />
     </div>
   );
 }

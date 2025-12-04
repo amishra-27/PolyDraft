@@ -5,8 +5,8 @@
 @tailwind utilities;
 
 :root {
-  --foreground-rgb: 255, 255, 255;
-  --background-rgb: 15, 10, 10; /* #0f0a0a - deep dark red-black */
+  --foreground-rgb: 0, 0, 0;
+  --background-rgb: 255, 255, 255;
 }
 
 body {
@@ -73,20 +73,20 @@ html {
   }
 }
 
-/* Custom Scrollbar for red dark theme */
+/* Custom Scrollbar for light theme */
 ::-webkit-scrollbar {
   width: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #0f0a0a;
+  background: #f8f9fa;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #ef4444;
+  background: #6c757d;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #dc2626;
+  background: #5a6268;
 }

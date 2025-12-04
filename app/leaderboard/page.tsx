@@ -1,13 +1,20 @@
 'use client';
 
 import { LeaderboardRow } from "@/components/LeaderboardRow";
-import { useDevSettings } from "@/lib/contexts/DevSettingsContext";
-import { dummyLeaderboard } from "@/lib/data/dummyData";
+import { SkeletonLoader } from "@/components/ui/SkeletonLoader";
+import { useScores } from "@/lib/hooks/useScores";
 
 export default function LeaderboardPage() {
-  const { settings } = useDevSettings();
+  const { scores, loading } = useScores('global'); // Use global leaderboard for now
 
-  const leaderboard = settings.showDummyData ? dummyLeaderboard : [];
+  // Transform scores for LeaderboardRow component
+  const leaderboard = scores?.map(score => ({
+    rank: (score.rank ?? 0) as number,
+    username: score.wallet_address?.slice(0, 8) + '...', // Shorten address
+    points: (score.points ?? 0) as number,
+    change: 0, // TODO: Calculate change from previous period
+    isCurrentUser: false // TODO: Check if current user
+  })) || [];
 
   return (
     <div className="pb-24">
@@ -16,7 +23,9 @@ export default function LeaderboardPage() {
         <p className="text-text-muted text-sm">Top performers</p>
       </header>
 
-      {leaderboard.length > 0 ? (
+      {loading ? (
+        <SkeletonLoader type="leaderboard" count={5} />
+      ) : leaderboard.length > 0 ? (
         <div className="space-y-2">
           {leaderboard.map((entry) => (
             <LeaderboardRow
@@ -32,7 +41,7 @@ export default function LeaderboardPage() {
       ) : (
         <div className="p-12 bg-surface border border-white/5 rounded-xl text-center">
           <p className="text-text-muted text-sm mb-2">No leaderboard data available</p>
-          <p className="text-text-dim text-xs">Enable dummy data in dev settings to see rankings</p>
+          <p className="text-text-dim text-xs">Join a league to see rankings</p>
         </div>
       )}
     </div>

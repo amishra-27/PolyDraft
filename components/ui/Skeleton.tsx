@@ -145,3 +145,58 @@ export function LeaderboardRowSkeleton() {
     </div>
   );
 }
+
+// Draft Slot Skeleton
+export function DraftSlotSkeleton() {
+  return (
+    <div className="flex-shrink-0 w-20 h-24 rounded-xl border bg-surface/30 border-white/5 flex flex-col items-center justify-center gap-1">
+      <Skeleton width={30} height={8} className="mb-2" />
+      <Skeleton width={24} height={24} variant="circular" />
+    </div>
+  );
+}
+
+// Category Filter Skeleton
+export function CategoryFilterSkeleton() {
+  return (
+    <div className="flex gap-2 overflow-x-auto pb-2">
+      {Array.from({ length: 4 }).map((_, i) => (
+        <Skeleton key={i} width={80} height={32} variant="rectangular" className="rounded-xl" />
+      ))}
+    </div>
+  );
+}
+
+// Connection Status Skeleton
+export function ConnectionStatusSkeleton() {
+  return (
+    <div className="flex items-center gap-2">
+      <Skeleton width={8} height={8} variant="circular" />
+      <Skeleton width={60} height={12} />
+    </div>
+  );
+}
+
+// Modal Content Skeleton
+export function ModalContentSkeleton() {
+  return (
+    <div className="space-y-4">
+      <Skeleton width="60%" height={24} />
+      <Skeleton width="100%" height={16} lines={3} />
+      <div className="grid grid-cols-2 gap-3">
+        <Skeleton height={48} variant="rectangular" />
+        <Skeleton height={48} variant="rectangular" />
+      </div>
+    </div>
+  );
+}
+
+// Form Input Skeleton
+export function FormInputSkeleton() {
+  return (
+    <div className="space-y-2">
+      <Skeleton width={120} height={16} />
+      <Skeleton height={44} variant="rectangular" className="rounded-lg" />
+    </div>
+  );
+}

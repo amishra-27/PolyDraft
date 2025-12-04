@@ -1,5 +1,6 @@
 import React from 'react';
 import { clsx } from 'clsx';
+import { Loader2 } from 'lucide-react';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'outline';
@@ -19,9 +20,9 @@ export function Button({
   const baseStyles = "inline-flex items-center justify-center font-bold rounded-lg transition-all active:scale-95 disabled:opacity-50 disabled:pointer-events-none";
   
   const variants = {
-    primary: "bg-primary hover:bg-primary-hover text-white shadow-[0_0_15px_rgba(255,107,157,0.4)]",
-    secondary: "bg-surface hover:bg-surface-hover text-white border border-white/10",
-    outline: "bg-transparent border-2 border-primary text-primary hover:bg-primary/10",
+    primary: "bg-primary hover:bg-primary-hover text-white",
+    secondary: "bg-surface hover:bg-surface-hover text-primary border border-gray-300",
+    outline: "bg-transparent border-2 border-primary text-primary hover:bg-gray-50",
   };
 
   const sizes = {
@@ -37,7 +38,12 @@ export function Button({
       {...props}
     >
       {isLoading ? (
-        <span className="animate-pulse">Loading...</span>
+        <>
+          <Loader2 size={16} className="animate-spin" />
+          {typeof children === 'string' && (
+            <span className="ml-2">{children.replace(/^(Create|Join|Submit|Confirm|Save)/, '$1ing...')}</span>
+          )}
+        </>
       ) : (
         children
       )}
