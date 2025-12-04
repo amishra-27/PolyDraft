@@ -168,7 +168,9 @@ export async function POST(request: NextRequest) {
     await supabaseAdmin
       .from('users')
       .upsert({
-        wallet_address: creator_address.toLowerCase(),
+        id: user.id,
+        fid: user.fid,
+        wallet_address: creatorAddress.toLowerCase(),
         total_leagues: 1,
         created_at: new Date().toISOString()
       }, {
@@ -176,11 +178,11 @@ export async function POST(request: NextRequest) {
         ignoreDuplicates: false
       });
 
-    return NextResponse.json({
+    return createAuthenticatedResponse({
       success: true,
       league: data,
       message: 'League created successfully'
-    }, { status: 201 });
+    }, 201);
 
   } catch (error) {
     console.error('Unexpected error in POST /api/leagues:', error);
@@ -193,12 +195,5 @@ export async function POST(request: NextRequest) {
 
 // OPTIONS handler for CORS
 export async function OPTIONS(request: NextRequest) {
-  return new NextResponse(null, {
-    status: 200,
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-    },
-  });
+  return handleOptionsRequest();
 }
