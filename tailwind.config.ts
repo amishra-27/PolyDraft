@@ -9,16 +9,16 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Simple Black and White Design
+        // Light theme design
         background: "#ffffff", // White background
         surface: "#f8f9fa", // Light gray surface
         "surface-hover": "#e9ecef", // Lighter gray on hover
-        primary: "#000000", // Black primary
-        "primary-hover": "#333333", // Dark gray on hover
-        "primary-light": "#666666", // Medium gray
+        primary: "#0066cc", // Blue primary
+        "primary-hover": "#0052a3", // Darker blue on hover
+        "primary-light": "#4d94ff", // Lighter blue
         secondary: "#6c757d", // Gray secondary
         "secondary-hover": "#5a6268", // Darker gray
-        accent: "#000000", // Black accent
+        accent: "#0066cc", // Blue accent
         success: "#28a745", // Green for success
         warning: "#ffc107", // Yellow for warning
         error: "#dc3545", // Red for errors
